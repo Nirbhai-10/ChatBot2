@@ -6,7 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 from nltk.chunk import ne_chunk
-
+from flask import Flask, request, jsonify, render_template
 
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
@@ -15,37 +15,40 @@ nltk.download('words')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-#The iterative refinement process has been added to continuously train, evaluate, and refine the intent categorization model based on user feedback. The process continues until the user chooses to exit.
+app = Flask(__name__)
 
-#The predict_intent function and the get_user_feedback function are placeholders, and you need to implement them according to your chosen intent categorization approach.
+# Directory to store uploaded text files
+# UPLOAD_FOLDER = "uploads"
+# app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-#The get_user_input_data function is also a placeholder and needs to be implemented to gather new patterns and responses from the user for the incorrect intents.
+UPLOAD_FOLDER = r"C:\Users\priya\OneDrive\Desktop\Nirbhai\UPLOAD FOLDER"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-#The load_intents_from_file, update_intents, and save_intents_to_file functions are placeholders and need to be implemented to load the intents data from the file, update the intents with new patterns and responses, and save the updated intents back to the file, respectively.
-
-
+@app.route('/upload')
+def upload():
+    return render_template("files_upload/index_File.html")
 
 def preprocess_text(text):
     # Convert text to lowercase
     text = text.lower()
-    
+
     # Tokenize the text into words
     tokens = word_tokenize(text)
-    
+
     # Remove punctuation and special characters
     tokens = [token for token in tokens if token.isalnum()]
-    
+
     # Remove stopwords
     stop_words = set(stopwords.words('english'))
     tokens = [token for token in tokens if token not in stop_words]
-    
+
     # Lemmatization
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(token) for token in tokens]
-    
+
     # Reconstruct the preprocessed text
     preprocessed_text = ' '.join(tokens)
-    
+
     return preprocessed_text
 
 def convert_text_to_json(text_file, output_file):
@@ -90,35 +93,29 @@ def convert_text_to_json(text_file, output_file):
 
     print("Conversion completed successfully!")
 
-# Train the initial model
-text_file = r"C:\Users\priya\OneDrive\Desktop\Nirbhai\The Joint Entrance Examination JEE.txt"
-output_directory = r"C:\Users\priya\OneDrive\Desktop\Nirbhai\intents"
-os.makedirs(output_directory, exist_ok=True)
-output_file = os.path.join(output_directory, "intents.json")
 
-convert_text_to_json(text_file, output_file)
+# Endpoint to handle file uploads and intent conversion 
+@app.route("/upload_intent", methods=["POST"])
+def upload_file():
+    # Check if the POST request has the file part
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
 
-# Iterative refinement process
-while True:
-    user_input = input("Enter user query (or 'exit' to quit): ")
-    if user_input.lower() == "exit":
-        break
-    
-    # TODO: Use the trained model to predict the intent of user input
-    predicted_intent = predict_intent(user_input)
-    
-    # TODO: Get user feedback on the predicted intent (correct or incorrect)
-    user_feedback = get_user_feedback(predicted_intent)
-    
-    if user_feedback == "correct":
-        continue  # No refinement needed, move to the next query
-    
-    if user_feedback == "incorrect":
-        new_patterns, new_responses = get_user_input_data(user_input)
-        
-        # Update the intents data with new patterns and responses
-        intents = load_intents_from_file(output_file)
-        update_intents(intents, predicted_intent, new_patterns, new_responses)
-        save_intents_to_file(intents, output_file)
-        
-        print("Intents data updated successfully!")
+    file = request.files["file"]
+
+    # If the user does not select a file, browser may submit an empty part without filename
+    if file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    # Save the file to the upload folder
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+    file.save(file_path)
+
+    # Perform intent conversion and create intents.json file
+    output_file = os.path.splitext(file_path)[0] + ".json"
+    convert_text_to_json(file_path, output_file)
+
+    return jsonify({"message": "File uploaded and converted successfully"})
+
+if __name__ == "__main__":
+    app.run(debug=True)

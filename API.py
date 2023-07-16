@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template
 # import ChatBot
 import ChatBotV2
 
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -11,7 +10,7 @@ def home():
 
 @app.route('/Chat')
 def chat():
-    return render_template("index.html")
+    return render_template("chatbot/chat.html")
 
 @app.route('/ChatApp', methods=['POST'])
 def respond():

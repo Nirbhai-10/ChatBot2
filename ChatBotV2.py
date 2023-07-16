@@ -1,3 +1,4 @@
+import re
 import nltk
 import numpy as np
 import tflearn
@@ -19,7 +20,7 @@ if os.path.isfile(model_file):
     model = tflearn.DNN.load(model_file)
 else:
     # Load the intents data
-    with open(r"C:\Users\priya\OneDrive\Desktop\Nirbhai\intents.json") as file:
+    with open("intents.json") as file:
         data = json.load(file)
 
     nltk.download('wordnet')
@@ -32,7 +33,7 @@ else:
     docs_x = []
     docs_y = []
 
-    # Looping through our data
+    # Loop through the intents data
     for intent in data['intents']:
         for pattern in intent['patterns']:
             pattern = pattern.lower()
@@ -68,15 +69,13 @@ else:
     training = np.array(training)
     output = np.array(output)
 
-    print(training)
-
     net = tflearn.input_data(shape=[None, len(training[0])])
-    net = tflearn.fully_connected(net, 8)
-    net = tflearn.fully_connected(net, 8)
+    net = tflearn.fully_connected(net, 16, activation="relu")
+    net = tflearn.fully_connected(net, 16, activation="relu")
     net = tflearn.fully_connected(net, len(labels), activation="softmax")
-    net = tflearn.regression(net)
+    net = tflearn.regression(net, learning_rate=0.001)
     model = tflearn.DNN(net)
-    model.fit(training, output, n_epoch=500, batch_size=8, show_metric=True)
+    model.fit(training, output, n_epoch=100, batch_size=8, show_metric=True)
     model.save(model_file)
 
 # Load pre-trained BERT model and tokenizer
@@ -87,7 +86,12 @@ bert_model = BertModel.from_pretrained('bert-base-uncased')
 gpt_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 gpt_model = GPT2LMHeadModel.from_pretrained('gpt2')
 
+context = []
+
 def preprocess_input(sentence):
+    # Replace numbers with a number placeholder token
+    sentence = re.sub(r'\d+', 'NUM', sentence)
+    
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [stemmer.stem(word.lower()) for word in sentence_words]
     return sentence_words
@@ -119,9 +123,17 @@ def classify_and_get_response(sentence):
     results = model.predict([bag_of_words])[0]
     index = np.argmax(results)
     max_probability = results[index]
-    confidence_threshold = 0.5
 
-    if max_probability > confidence_threshold:
+    confidence_threshold_low = 0.35
+    confidence_threshold_medium = 0.5
+
+    if max_probability < confidence_threshold_low:
+        return "I'm not sure."
+    elif max_probability < confidence_threshold_medium:
+        # Use GPT for generating response
+        gpt_response = gpt_generate_response(sentence)
+        return gpt_response
+    else:
         tag = labels[index]
         intent = next((intent for intent in data['intents'] if intent['tag'] == tag), None)
         if intent:
@@ -129,38 +141,49 @@ def classify_and_get_response(sentence):
             weights = intent.get('weight', [1] * len(responses))
             response = random.choices(responses, weights=weights)[0]
             return response
-    else:
-        # Use GPT for generating response
-        gpt_response = gpt_generate_response(sentence)
-        return gpt_response
-    
-    return "I'm not sure."
-
 
 def get_response(input_sentence):
+    global context
+
+    # Preprocess user input
     sentence = preprocess_input(input_sentence)
-    response = classify_and_get_response(sentence)
-    
-    if response == "I'm not sure.":
-        # Use BERT for generating response
-        bert_embeddings = bert_encode(input_sentence)
-        results = model.predict([bert_embeddings])[0]
-        index = np.argmax(results)
-        max_probability = results[index]
-        confidence_threshold = 0.7
+    sentence = ' '.join(sentence)  # Join the preprocessed words into a single string
 
-        if max_probability > confidence_threshold:
-            tag = labels[index]
-            intent = next((intent for intent in data['intents'] if intent['tag'] == tag), None)
-            if intent:
-                responses = intent['responses']
-                weights = intent.get('weight', [1] * len(responses))
-                response = random.choices(responses, weights=weights)[0]
-        else:
-            # Use GPT for generating response
-            gpt_response = gpt_generate_response(input_sentence)
-            response = gpt_response
-    
-    return response
+    # Check if there is context available
+    if context:
+        sentence = context + sentence
 
-print(training)
+    # Generate bag of words
+    bag_of_words = generate_bag_of_words(sentence, words)
+
+    # Predict intent
+    results = model.predict([bag_of_words])[0]
+    index = np.argmax(results)
+    max_probability = results[index]
+
+    confidence_threshold = 0.7
+
+    # Check if intent prediction is above confidence threshold
+    if max_probability > confidence_threshold:
+        tag = labels[index]
+        intent = next((intent for intent in data['intents'] if intent['tag'] == tag), None)
+        if intent:
+            responses = intent['responses']
+            weights = intent.get('weight', [1] * len(responses))
+            response = random.choices(responses, weights=weights)[0]
+
+            # Update context if required
+            if "context_set" in intent:
+                context = preprocess_input(intent["context_set"])
+
+            return response
+
+    # Use GPT for generating response
+    gpt_response = gpt_generate_response(input_sentence)
+
+    # Update context based on GPT response
+    context = preprocess_input(gpt_response)
+
+    return gpt_response
+
+print(get_response("Hello"))
