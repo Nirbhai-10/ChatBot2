@@ -124,7 +124,7 @@ def classify_and_get_response(sentence):
     index = np.argmax(results)
     max_probability = results[index]
 
-    confidence_threshold_low = 0.35
+    confidence_threshold_low = 0.25
     confidence_threshold_medium = 0.5
 
     if max_probability < confidence_threshold_low:

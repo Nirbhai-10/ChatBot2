@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>ChatBot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f9;
+    }
+
+    .chat-container {
+      max-width: 480px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #ffc0cb;
+      color: #ffffff;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .chat-body {
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+    }
+
+    .chat-footer {
+      padding: 10px;
+      display: flex;
+      background-color: #ffffff;
+    }
+
+    .chat-footer input[type="text"] {
+      flex-grow: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-footer button {
+      margin-left: 10px;
+      padding: 8px 16px;
+      background-color: #ffc0cb;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.3s;
+      font-size: 14px;
+    }
+
+    .chat-footer button:hover {
+      background-color: #ff8098;
+    }
+
+    /* Additional CSS for chat message animation and styling */
+
+    .message {
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      animation-duration: 0.3s;
+      animation-fill-mode: both;
+    }
+
+    .message.user {
+      text-align: right;
+    }
+
+    .message.bot {
+      text-align: left;
+    }
+
+    .message.user:before,
+    .message.bot:before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #eee;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation-name: line-extend;
+    }
+
+    .message.user:before {
+      left: 0;
+      background-color: #ffc0cb;
+      transform-origin: right;
+      animation-direction: reverse;
+    }
+
+    .message.bot:before {
+      right: 0;
+      background-color: #ddd;
+    }
+
+    /* Additional CSS for enhanced animation and aesthetics */
+
+    .message-container {
+      opacity: 0;
+      animation: fade-in 0.5s forwards;
+    }
+
+    @keyframes fade-in {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .company-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background-color: #ffc0cb;
+    }
+
+    .company-logo img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="chat-container">
+    <div class="company-logo">
+      <img src="logo.png" alt="Company Logo">
+    </div>
+    <div class="chat-header">
+      <h1>ChatBot</h1>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <!-- Chat messages will be displayed here -->
+      <div id="chat-messages"></div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="user-input" placeholder="Type your message...">
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    function sendMessage() {
+      var userInput = document.getElementById("user-input").value;
+      document.getElementById("user-input").value = "";
+
+      var chatMessages = document.getElementById("chat-messages");
+      var userMessage = document.createElement("div");
+      userMessage.classList.add("message", "user", "message-container");
+      userMessage.innerHTML = "<strong>You:</strong> " + userInput;
+      chatMessages.appendChild(userMessage);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Send message to the chatbot API
+      fetch("/ChatApp", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: userInput }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          var botMessage = document.createElement("div");
+          botMessage.classList.add("message", "bot", "message-container");
+          botMessage.innerHTML = "<strong>ChatBot:</strong> " + data.response;
+          chatMessages.appendChild(botMessage);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }
+  </script>
+</body>
+
+</html>
