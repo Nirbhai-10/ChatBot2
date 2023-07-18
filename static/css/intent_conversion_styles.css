@@ -1,47 +1,62 @@
 body {
-    display: flex;
     font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f2f2f2;
 }
 
-#sidebar {
-    width: 200px;
-    padding: 20px;
-    background-color: #f1f1f1;
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-#main-content {
-    flex: 1;
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    width: 48%;
     padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
 }
 
 h2 {
     margin-top: 0;
-}
-
-#file-upload, #text-paste {
     margin-bottom: 10px;
+}
+
+textarea {
     width: 100%;
-    padding: 5px;
+    resize: vertical;
 }
 
-#intents-list {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-#intents-list li {
-    margin-bottom: 5px;
-}
-
-#train-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
+button {
+    display: block;
     margin-top: 10px;
+}
+
+.output {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.output h3 {
+    margin: 0;
+}
+
+#intentJson {
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#uploadButton {
+    margin-top: 5px;
+    display: block;
 }

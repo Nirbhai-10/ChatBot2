@@ -93,10 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event listener for train button
   trainButton.addEventListener("click", () => {
     const selectedIntentFiles = Array.from(
-      intentFilesList.getElementsByTagName("input")
-    )
-      .filter((checkbox) => checkbox.checked)
-      .map((checkbox) => checkbox.value);
+      intentFilesList.getElementsByTagName("li")
+    ).map((listItem) => listItem.textContent);
 
     if (selectedIntentFiles.length > 0) {
       // Show loading animation during training

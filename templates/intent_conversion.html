@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Chatbot Training</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Intent Conversion</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/intent_conversion_styles.css') }}">
 </head>
+
 <body>
-    <div id="sidebar">
-        <h2>Intent Files</h2>
-        <ul id="intent-files-list"></ul>
-        <button id="train-button">Train Chatbot</button>
-    </div>
-    <div id="main-content">
-        <div id="upload-section">
-            <h2>Upload Files</h2>
-            <input type="file" id="file-upload" multiple>
-            <button id="upload-button">Upload</button>
-            <div id="progress-bar-container">
-                <div id="progress-bar"></div>
+    <h1>Intent Conversion</h1>
+    <div class="container">
+        <div class="content">
+            <h2>Raw Text to Intent Conversion</h2>
+            <textarea id="rawTextInput" rows="6" placeholder="Enter your text here"></textarea>
+            <button onclick="convertText()">Convert to Intent</button>
+            <div id="intentOutput" class="output">
+                <h3>Intent Output:</h3>
+                <div id="intentJson"></div>
             </div>
         </div>
-        <div id="paste-section">
-            <h2>Paste Text</h2>
-            <textarea id="text-paste"></textarea>
-            <button id="paste-button">Paste</button>
-        </div>
-        <div id="intents-section">
-            <h2>Converted Intents</h2>
-            <ul id="intents-list"></ul>
+        <div class="content">
+            <h2>Upload Intent File</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" name="file" id="fileInput" accept=".txt">
+                <button type="submit" id="uploadButton">Upload File</button>
+            </form>
+            <div id="uploadStatus" class="output">
+                <h3>Upload Status:</h3>
+                <div id="uploadMessage"></div>
+            </div>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='js/intent_conversion_script.js') }}"></script>
 </body>
+
 </html>

@@ -32,8 +32,12 @@ def home():
     return "Working at new route"
 
 @app.route('/Chat')
-def chat():
-    return render_template("index.html")
+def Chat():
+    return render_template("chatbot.html")
+@app.route('/upload')
+def upload():
+    return render_template("intent_conversion.html")
+
 
 @app.route('/ChatApp', methods=['POST'])
 def respond():
@@ -97,39 +101,47 @@ def convert_text_to_json(text):
 
     return json_data
 
+
 @app.route('/upload_intent', methods=['POST'])
 def upload_intent():
     # Create the uploads folder if it doesn't exist
     if not os.path.exists(app.config["UPLOAD_FOLDER"]):
         os.makedirs(app.config["UPLOAD_FOLDER"])
 
-    # Get the uploaded files
-    files = request.files.getlist("file")
+    try:
+        # Get the uploaded files
+        files = request.files.getlist("file")
 
-    # Convert the uploaded files to intents
-    intent_files = []
-    for index, file in enumerate(files):
-        # Save the file
-        filename = f"intent_{index + 1}.txt"
-        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        # Convert the uploaded files to intents
+        intent_files = []
+        for index, file in enumerate(files):
+            # Save the file
+            filename = f"intent_{index + 1}.txt"
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
 
-        # Read the file contents
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        with open(file_path, "r") as f:
-            text = f.read().strip()
+            # Read the file contents
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            with open(file_path, "r") as f:
+                text = f.read().strip()
 
-        # Convert the text to JSON
-        json_data = convert_text_to_json(text)
+            # Convert the text to JSON
+            json_data = convert_text_to_json(text)
 
-        # Save the JSON data to a file
-        intent_json_filename = f"intent_{index + 1}.json"
-        intent_json_path = os.path.join(app.config["UPLOAD_FOLDER"], intent_json_filename)
-        with open(intent_json_path, "w") as f:
-            f.write(json_data)
+            # Save the JSON data to a file
+            intent_json_filename = f"intent_{index + 1}.json"
+            intent_json_path = os.path.join(app.config["UPLOAD_FOLDER"], intent_json_filename)
+            with open(intent_json_path, "w") as f:
+                f.write(json_data)
 
-        intent_files.append(intent_json_filename)
+            intent_files.append(intent_json_filename)
 
-    return jsonify({"intentFiles": intent_files})
+        return jsonify({"intentFiles": intent_files})
+
+    except Exception as e:
+        error_message = "File upload failed. Please try again."
+        print("Error during file upload:", e)
+        return jsonify({"error": error_message}), 500
+
 
 @app.route('/convert_text', methods=['POST'])
 def convert_text():
@@ -153,7 +165,7 @@ def train_chatbot():
     intent_files = data['intentFiles']
 
     # Train the chatbot using the selected intent files
-    success = ChatBot.train_chatbot(intent_files)
+    success = ChatBotV2.train_chatbot(intent_files)
 
     if success:
         return jsonify({"success": True})
