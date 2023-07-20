@@ -14,9 +14,9 @@ flatbuffers==23.5.26
 gunicorn==21.2.0
 gast==0.4.0
 
-Google Auth==1.35.0
-Google Auth OAuthlib==0.4.6
-Google Pasta==0.2.0
+google Auth==1.35.0
+google Auth OAuthlib==0.4.6
+google Pasta==0.2.0
 grpcio==1.54.2
 h5py==3.8.0
 idna==3.4
@@ -49,11 +49,11 @@ scipy==1.7.3
 six==1.16.0
 
 torch== 1.13.1
-TensorBoard==2.11.0
+tensorBoard==2.11.0
 tensorboard-data-server==0.6.1
-TensorFlow==2.11.0
-TensorFlow-estimator==2.11.0
-TensorFlow-io-gcs-filesystem==0.29.0
+tensorFlow==2.11.0
+tensorFlow-estimator==2.11.0
+tensorFlow-io-gcs-filesystem==0.29.0
 termcolor==2.3.0
 tflearn==0.5.0
 tqdm==4.65.0
