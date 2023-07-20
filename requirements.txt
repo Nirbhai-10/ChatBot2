@@ -18,7 +18,7 @@ grpcio==1.54.2
 h5py==3.8.0
 idna==3.4
 itsdangerous==2.1.2
-jax==0.4.12
+jax==0.3.25
 Jinja2==3.1.2
 joblib==1.2.0
 keras==2.12.0
