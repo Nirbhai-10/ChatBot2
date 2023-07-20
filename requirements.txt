@@ -11,7 +11,7 @@ Flask==2.2.5
 flask-ngrok==0.0.25
 flatbuffers==23.5.26
 
-gunicorn==2.3.4
+gunicorn==21.2.0
 gast==0.4.0
 google-auth==2.19.1
 google-auth-oauthlib==1.0.0
