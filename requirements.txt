@@ -51,9 +51,9 @@ six==1.16.0
 torch== 1.13.1
 tensorboard==2.11.0
 tensorboard-data-server==0.6.1
-tensorFlow==2.11.0
-tensorFlow-estimator==2.11.0
-tensorFlow-io-gcs-filesystem==0.29.0
+tensorflow==2.11.0
+tensorflow-estimator==2.11.0
+tensorflow-io-gcs-filesystem==0.29.0
 termcolor==2.3.0
 tflearn==0.5.0
 tqdm==4.65.0
