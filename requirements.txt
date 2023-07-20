@@ -1,7 +1,7 @@
 ﻿absl-py==1.4.0
 astunparse==1.6.3
 blinker==1.6.2
-cachetools==5.3.1
+cachetools==4.2.2
 certifi==2023.5.7
 charset-normalizer==3.1.0
 click==8.1.3
